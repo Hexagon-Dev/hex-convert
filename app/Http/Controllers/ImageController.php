@@ -45,4 +45,16 @@ class ImageController extends Controller
         else if ($image['status'] == 'pending') return response()->json(['status' => 'pending',], 201);
         else return response()->json(['status' => 'waiting',], 201);
     }
+
+    public function getByPath($path)
+    {
+        if (file_exists($path)) {
+            $parts = explode('/', $path);
+            $image = storage_path() . '/app/public/resized/' . end($parts);
+            $headers = array( 'Content-Type: image/' . explode('.', end($parts))[1], );
+            return response()->download($image, end($parts), $headers);
+        } else {
+            return response()->json(['response' => 'not found',], 404);
+        }
+    }
 }

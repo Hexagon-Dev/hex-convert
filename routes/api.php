@@ -20,5 +20,5 @@ Route::get('/tasks/{uuid}', function ($uuid) {
     return ImageController::getById($uuid);
 });
 Route::get('/files/{path}', function ($uuid) {
-    return ImageController::getById($uuid);
-});
+    return ImageController::getByPath($uuid);
+})->where('path', '.*');
