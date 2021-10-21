@@ -2,24 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property string $uuid
+ * @property string $path
+ * @property string $status
+ */
 class Image extends Model
 {
-    use HasFactory;
+    public const STATUS_WAITING = 'waiting';
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_DONE = 'done';
 
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'images';
-
-    /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
     public $timestamps = false;
+    public $incrementing = false;
+
+    protected $primaryKey = 'uuid';
+
+    protected $guarded = [];
 }

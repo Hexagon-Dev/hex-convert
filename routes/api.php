@@ -14,11 +14,6 @@ use App\Http\Controllers\ImageController;
 |
 */
 
-Route::post('/tasks', [ImageController::class, 'upload']);
-
-Route::get('/tasks/{uuid}', function ($uuid) {
-    return ImageController::getById($uuid);
-});
-Route::get('/files/{path}', function ($uuid) {
-    return ImageController::getByPath($uuid);
-})->where('path', '.*');
+Route::post('/tasks', [ImageController::class, 'upload'])->name('upload');
+Route::get('/tasks/{uuid}', [ImageController::class, 'info'])->name('info');
+Route::get('/files/{path}', [ImageController::class, 'download'])->name('download')->where('path', '.*');

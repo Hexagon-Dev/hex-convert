@@ -2,39 +2,31 @@
 
 namespace App\Jobs;
 
+use App\Models\Image as ImageModel;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Intervention\Image\Facades\Image;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 
 class ImageProcess implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
-    protected $imageName;
     protected $uuid;
-    protected $extension;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($imageName)
+    public function __construct(string $uuid)
     {
-        $this->imageName = $imageName;
-        $parts = explode('.', $imageName);
-        $this->uuid = $parts[0];
-        $this->extension = $parts[1];
-        Log::debug('imageName: ' . $imageName);
-
-        DB::update('UPDATE images SET status = "pending" WHERE uuid = ?', [$this->uuid]);
-        Log::debug('[DB] uuid: ' . $this->uuid . ' status: pending');
+        $this->uuid = $uuid;
     }
 
     /**
@@ -42,20 +34,27 @@ class ImageProcess implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        $size = 100;
-        for ($i = 0; $i < 4; $i++)
-        {
-            $resizedImageName = $this->uuid . '-' . $size . '.' . $this->extension;
-            $resizedImagePath = storage_path() . '/app/public/resized/' . $resizedImageName;
-            $resizedImage = Image::make(storage_path() . '/app/public/images/' . $this->imageName)->resize($size, $size);
-            $resizedImage->save($resizedImagePath);
-            Log::debug('Created ' . $size . ' image: ' . $resizedImagePath);
-            $size += 100;
+        /** @var ImageModel $image */
+        $image = ImageModel::query()->find($this->uuid);
+
+        if (!$image) {
+            return;
         }
 
-        DB::update('UPDATE images SET status = "finished" WHERE uuid = ?', [$this->uuid]);
-        Log::debug('[DB] uuid: ' . $this->uuid . ' status: finished');
+        $image->update([
+            'status' => ImageModel::STATUS_PROCESSING,
+        ]);
+
+        collect([100, 200, 300, 500])->each(function ($size) use ($image) {
+            $path = $image->path;
+            $resizedPath = public_path("images/resized/${size}x${size}-$path");
+            Image::make(public_path('images/' . $image->path))->resize($size, $size)->save($resizedPath);
+        });
+
+        $image->update([
+            'status' => ImageModel::STATUS_DONE,
+        ]);
     }
 }

@@ -11,11 +11,11 @@ class CreateImages extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('images', function (Blueprint $table) {
             $table->string('uuid');
-            $table->string('extension');
+            $table->string('path');
             $table->string('status');
         });
     }
@@ -25,7 +25,7 @@ class CreateImages extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('images');
     }
