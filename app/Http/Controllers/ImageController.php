@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Jobs\ImageProcess;
 
 class ImageController extends Controller
 {
-    public function upload(Request $request)
+    public function upload(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
@@ -28,7 +29,7 @@ class ImageController extends Controller
         return response()->json(['uuid' => $uuid,], 201);
     }
 
-    public function getById($uuid)
+    public function getById($uuid): \Illuminate\Http\JsonResponse
     {
         $image = DB::select('SELECT * FROM images WHERE uuid = ?', [$uuid]);
         $image = (array) $image[0];
@@ -56,5 +57,16 @@ class ImageController extends Controller
         } else {
             return response()->json(['response' => 'not found',], 404);
         }
+    }
+
+    public function getRandomExistingId(): array
+    {
+        return DB::select('SELECT * FROM images ORDER BY rand() LIMIT 1');
+    }
+
+    public function getRandomFile($directory)
+    {
+        $files = Storage::allFiles($directory);
+        return $files[rand(0, count($files) - 1)];
     }
 }
