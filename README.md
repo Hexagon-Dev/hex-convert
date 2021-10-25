@@ -1,7 +1,7 @@
 # HexConvert
 HexConvert - Приложение для конвертации картинок в другие размеры.
 Перед началом установки убедитесь что у вас установлены все зависимости:
-```
+```bash
 # загрузка списков пакетов из репозиториев
 sudo apt-get update
 
@@ -12,7 +12,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io
 sudo apt-get install make
 ```
 Быстрый запуск:
-```
+```bash
 # клонируем репозиторий
 git clone https://github.com/hexagon14/hexconvert.git
 
