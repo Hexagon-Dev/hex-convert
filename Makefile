@@ -2,7 +2,7 @@
 ENVIRONMENT_FILE=$(shell pwd)/.env
 
 # The default laravel directory
-PROJECT_DIRECTORY=$(shell pwd)/laravel
+PROJECT_DIRECTORY=$(shell pwd)/hexconvert
 
 # Available docker containers
 CONTAINERS=php-fpm php-cli nginx mysql memcached node
@@ -47,7 +47,7 @@ build-containers:
 build-project:
 # Check whether the project has been initialized
 ifeq ("$(wildcard $(PROJECT_DIRECTORY))","")
-	- docker-compose -f docker-compose.yml exec php-cli composer --no-scripts create-project laravel/laravel laravel
+	- docker-compose -f docker-compose.yml exec php-cli composer --no-scripts create-project laravel/laravel hex-convert
 
 	# Install using no scripts, run the script after the installation has finished and the env file is in place
 	- cp config/laravel/.env laravel/.env

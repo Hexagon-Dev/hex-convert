@@ -67,14 +67,14 @@ class ImageController extends Controller
 
         if ($image === null) {
             return response()->json(
-                ['error' => 'task not exists'],
+                ['error' => 'task does not exist'],
                 Response::HTTP_NOT_FOUND
             );
         }
 
         if ($image->status !== Image::STATUS_DONE) {
             return response()->json(
-                ['message' => 'the task is not yet done'],
+                ['message' => 'task is not done yet'],
                 Response::HTTP_ACCEPTED
             );
         }
