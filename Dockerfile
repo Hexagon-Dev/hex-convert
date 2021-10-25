@@ -1,50 +1,23 @@
-FROM php:7.4-fpm
+FROM composer:latest AS composer
+FROM php:7.4-fpm-alpine
 
-# Copy composer.lock and composer.json
-COPY composer.lock composer.json /var/www/
+RUN apk add --no-cache bash
 
-# Set working directory
-WORKDIR /var/www
+# PHP extensions installer
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    locales \
-    libzip-dev \
-    zip \
-    jpegoptim optipng pngquant gifsicle \
-    vim \
-    unzip \
-    git \
-    curl
+# Composer
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+RUN mkdir /.composer && chown -R 1000:1000 /.composer
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN install-php-extensions pdo_mysql gmp gd zip exif pcntl
 
-# Install extensions
-RUN docker-php-ext-install pdo_mysql zip exif pcntl
-RUN docker-php-ext-install gd
-RUN docker-php-ext-configure gd --with-jpeg=/usr/include/
+# Setup Working Dir
+WORKDIR /app
 
-# Install composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# setup
+COPY . /app
+RUN [ ! -e ".env" ] && cp .env.example .env || echo 0
+RUN composer install --no-dev --no-interaction --ansi
 
-# Add user for laravel application
-RUN groupadd -g 1000 www
-RUN useradd -u 1000 -ms /bin/bash -g www www
-
-# Copy existing application directory contents
-COPY . /var/www
-
-# Copy existing application directory permissions
-COPY --chown=www:www . /var/www
-
-# Change current user to www
-USER www
-
-# Expose port 9000 and start php-fpm server
-#EXPOSE 9000
-#CMD ["php-fpm -F -R"]
+USER 1000:1000
