@@ -19,8 +19,14 @@ git clone https://github.com/hexagon14/hexconvert.git
 # меняем директорию
 cd hexconvert
 
-# запускаем контейнеры докера. Первый запуск может быть долгим
-make
+# устанавливаем
+make install-dev
+
+# запускаем
+make up
+
+# мигрируем таблицы в базу данных
+make migrate
 ```
 Перейдите на http://localhost  
 Если вы видите надпись Hex-Convert - значит приложение успешно установлено.
