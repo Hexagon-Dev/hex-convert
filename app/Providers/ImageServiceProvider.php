@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Contracts\Services\ImageServiceInterface;
 use App\Services\ImageService;
 use Illuminate\Support\ServiceProvider;
 
@@ -12,18 +13,8 @@ class ImageServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
-        $this->app->bind('App\Contracts\ImageServiceInterface', 'App\Services\ImageService');
-    }
-
-    /**
-     * Bootstrap services.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        //
+        $this->app->bind(ImageServiceInterface::class, ImageService::class);
     }
 }

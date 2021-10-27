@@ -2,22 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\ImageService;
+use App\Contracts\Services\ImageServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ImageController extends Controller
 {
-    /**
-     * @var ImageService
-     */
-    protected ImageService $service;
+    protected ImageServiceInterface $service;
 
     /**
-     * @param ImageService $imageService
+     * @param ImageServiceInterface $imageService
      */
-    public function __construct(ImageService $imageService)
+    public function __construct(ImageServiceInterface $imageService)
     {
         $this->service = $imageService;
     }
@@ -32,7 +29,7 @@ class ImageController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
         ]);
 
-        return $this->service->upload($request);
+        return $this->service->upload($request->file('image'));
     }
 
     /**

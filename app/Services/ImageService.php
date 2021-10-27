@@ -2,25 +2,29 @@
 
 namespace App\Services;
 
+use App\Contracts\Services\ImageServiceInterface;
 use App\Jobs\ImageProcess;
 use App\Models\Image;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-class ImageService
+class ImageService implements ImageServiceInterface
 {
-    public function upload(Request $request): JsonResponse
+    /**
+     * @param UploadedFile $file
+     * @return JsonResponse
+     */
+    public function upload(UploadedFile $file): JsonResponse
     {
         $uuid = (string)Str::uuid();
 
         /**
          * Saving file to the public folder
          */
-        $file = $request->file('image');
         $extension = $file->clientExtension();
         $imageName = implode('.', [$uuid, $extension]);
 
