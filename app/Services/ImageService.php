@@ -5,12 +5,10 @@ namespace App\Services;
 use App\Contracts\Services\ImageServiceInterface;
 use App\Jobs\ImageProcess;
 use App\Models\Image;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class ImageService implements ImageServiceInterface
@@ -46,10 +44,7 @@ class ImageService implements ImageServiceInterface
          */
         ImageProcess::dispatch($image->uuid);
 
-        return Collection::make([
-            'id' => $image->uuid,
-            'status' => Response::HTTP_CREATED
-            ]);
+        return $this->makeResponse(['id' => $image->uuid], Response::HTTP_CREATED);
     }
 
     /**
@@ -63,17 +58,11 @@ class ImageService implements ImageServiceInterface
         $image = Image::query()->find($uuid);
 
         if ($image === null) {
-            return Collection::make([
-                'error' => 'task does not exist',
-                'status' => Response::HTTP_NOT_FOUND
-            ]);
+            return $this->makeResponse(['error' => 'task does not exist'], Response::HTTP_NOT_FOUND);
         }
 
         if ($image->status !== Image::STATUS_DONE) {
-            return Collection::make([
-                'message' => 'task is not yet done',
-                'status' => Response::HTTP_ACCEPTED
-            ]);
+            return $this->makeResponse(['message' => 'task is not yet done'], Response::HTTP_ACCEPTED);
         }
 
         $files = collect([100, 200, 300, 500])->map(function ($size) use ($image) {
@@ -81,25 +70,32 @@ class ImageService implements ImageServiceInterface
             return "/images/resized/${size}x${size}-$path";
         });
 
-        return Collection::make([
-            'files' => $files,
-            'status' => Response::HTTP_OK
-            ]);
+        return $this->makeResponse(['files' => $files], Response::HTTP_OK);
     }
 
     /**
      * @param string $path
-     * @return Collection|BinaryFileResponse
+     * @return Collection|string
      */
-    public function download(string $path): Collection
+    public function download(string $path)
     {
         if (!File::exists(public_path($path))) {
-            return Collection::make([
-                'error' => 'file not found',
-                'status' => Response::HTTP_NOT_FOUND
-            ]);
+            return $this->makeResponse(['error' => 'file not found'], Response::HTTP_NOT_FOUND);
         }
 
-        return response()->file(public_path($path));
+        return public_path($path);
+    }
+
+    /**
+     * @param array $data
+     * @param int $status
+     * @return Collection
+     */
+    protected function makeResponse(array $data, int $status): Collection
+    {
+        return collect([
+            'data' => $data,
+            'status' => $status,
+        ]);
     }
 }

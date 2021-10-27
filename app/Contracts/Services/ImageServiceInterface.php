@@ -21,7 +21,7 @@ interface ImageServiceInterface
 
     /**
      * @param string $path
-     * @return Collection
+     * @return Collection|string
      */
-    public function download(string $path): Collection;
+    public function download(string $path);
 }
