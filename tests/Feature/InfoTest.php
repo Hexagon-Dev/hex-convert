@@ -15,7 +15,7 @@ class InfoTest extends TestCase
     {
         $response = $this->get(route('info', ['uuid' => Str::uuid()->toString()]));
         $response->assertStatus(404);
-        self::assertSame('task not exists', $response->json('error'));
+        self::assertSame('task does not exist', $response->json('error'));
     }
 
     /**
@@ -32,7 +32,7 @@ class InfoTest extends TestCase
 
         $response = $this->get(route('info', ['uuid' => $image->uuid]));
         $response->assertStatus(202);
-        self::assertSame('the task is not yet done', $response->json('message'));
+        self::assertSame('task is not yet done', $response->json('message'));
     }
 
     /**
@@ -49,7 +49,7 @@ class InfoTest extends TestCase
 
         $response = $this->get(route('info', ['uuid' => $image->uuid]));
         $response->assertStatus(202);
-        self::assertSame('the task is not yet done', $response->json('message'));
+        self::assertSame('task is not yet done', $response->json('message'));
     }
 
     /**

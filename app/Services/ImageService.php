@@ -66,7 +66,7 @@ class ImageService
 
         if ($image->status !== Image::STATUS_DONE) {
             return response()->json(
-                ['message' => 'task is not done yet'],
+                ['message' => 'task is not yet done'],
                 Response::HTTP_ACCEPTED
             );
         }

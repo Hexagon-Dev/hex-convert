@@ -10,36 +10,46 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class ImageController extends Controller
 {
     /**
-     * @param ImageService $ImageService
+     * @var ImageService
+     */
+    protected $service;
+
+    /**
+     * @param ImageService $imageService
+     */
+    public function __construct(ImageService $imageService)
+    {
+        $this->service = $imageService;
+    }
+
+    /**
      * @param Request $request
      * @return JsonResponse
      */
-    public function upload(ImageService $ImageService, Request $request): JsonResponse
+    public function upload(Request $request): JsonResponse
     {
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
         ]);
 
-        return $ImageService->upload($request);
+        return $this->service->upload($request);
     }
 
     /**
-     * @param ImageService $ImageService
      * @param string $uuid
      * @return JsonResponse
      */
-    public function info(ImageService $ImageService, string $uuid): JsonResponse
+    public function info(string $uuid): JsonResponse
     {
-        return $ImageService->info($uuid);
+        return $this->service->info($uuid);
     }
 
     /**
-     * @param ImageService $ImageService
      * @param string $path
      * @return JsonResponse|BinaryFileResponse
      */
-    public function download(ImageService $ImageService, string $path)
+    public function download(string $path)
     {
-        return $ImageService->download($path);
+        return $this->service->download($path);
     }
 }
