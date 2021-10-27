@@ -12,7 +12,7 @@ class ImageController extends Controller
     /**
      * @var ImageService
      */
-    protected $service;
+    protected ImageService $service;
 
     /**
      * @param ImageService $imageService
