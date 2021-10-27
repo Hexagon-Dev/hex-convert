@@ -2,16 +2,26 @@
 
 namespace App\Contracts\Services;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 
 interface ImageServiceInterface
 {
     /**
      * @param UploadedFile $file
-     * @return JsonResponse
+     * @return Collection
      */
-    public function upload(UploadedFile $file): JsonResponse;
-    public function info(string $uuid): JsonResponse;
-    public function download(string $path): JsonResponse;
+    public function upload(UploadedFile $file): Collection;
+
+    /**
+     * @param string $uuid
+     * @return Collection
+     */
+    public function info(string $uuid): Collection;
+
+    /**
+     * @param string $path
+     * @return Collection
+     */
+    public function download(string $path): Collection;
 }

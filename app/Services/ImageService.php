@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\Services\ImageServiceInterface;
 use App\Jobs\ImageProcess;
 use App\Models\Image;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
@@ -16,9 +17,9 @@ class ImageService implements ImageServiceInterface
 {
     /**
      * @param UploadedFile $file
-     * @return JsonResponse
+     * @return Collection
      */
-    public function upload(UploadedFile $file): JsonResponse
+    public function upload(UploadedFile $file): Collection
     {
         $uuid = (string)Str::uuid();
 
@@ -45,34 +46,34 @@ class ImageService implements ImageServiceInterface
          */
         ImageProcess::dispatch($image->uuid);
 
-        return response()->json(
-            ['id' => $image->uuid],
-            Response::HTTP_CREATED
-        );
+        return Collection::make([
+            'id' => $image->uuid,
+            'status' => Response::HTTP_CREATED
+            ]);
     }
 
     /**
      * @param string $uuid
-     * @return JsonResponse
+     * @return Collection
      */
-    public function info(string $uuid): JsonResponse
+    public function info(string $uuid): Collection
     {
 
         /** @var Image $image */
         $image = Image::query()->find($uuid);
 
         if ($image === null) {
-            return response()->json(
-                ['error' => 'task does not exist'],
-                Response::HTTP_NOT_FOUND
-            );
+            return Collection::make([
+                'error' => 'task does not exist',
+                'status' => Response::HTTP_NOT_FOUND
+            ]);
         }
 
         if ($image->status !== Image::STATUS_DONE) {
-            return response()->json(
-                ['message' => 'task is not yet done'],
-                Response::HTTP_ACCEPTED
-            );
+            return Collection::make([
+                'message' => 'task is not yet done',
+                'status' => Response::HTTP_ACCEPTED
+            ]);
         }
 
         $files = collect([100, 200, 300, 500])->map(function ($size) use ($image) {
@@ -80,23 +81,23 @@ class ImageService implements ImageServiceInterface
             return "/images/resized/${size}x${size}-$path";
         });
 
-        return response()->json(
-            ['files' => $files],
-            Response::HTTP_OK
-        );
+        return Collection::make([
+            'files' => $files,
+            'status' => Response::HTTP_OK
+            ]);
     }
 
     /**
      * @param string $path
-     * @return JsonResponse|BinaryFileResponse
+     * @return Collection|BinaryFileResponse
      */
-    public function download(string $path): JsonResponse
+    public function download(string $path): Collection
     {
         if (!File::exists(public_path($path))) {
-            return response()->json(
-                ['error' => 'file not found'],
-                Response::HTTP_NOT_FOUND
-            );
+            return Collection::make([
+                'error' => 'file not found',
+                'status' => Response::HTTP_NOT_FOUND
+            ]);
         }
 
         return response()->file(public_path($path));

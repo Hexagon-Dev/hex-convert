@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\Services\ImageServiceInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -29,7 +30,11 @@ class ImageController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
         ]);
 
-        return $this->service->upload($request->file('image'));
+        $collection = $this->service->upload($request->file('image'));
+        return response()->json(
+            ['id' => $collection->get('id')],
+            $collection->get('status')
+        );
     }
 
     /**
@@ -38,15 +43,26 @@ class ImageController extends Controller
      */
     public function info(string $uuid): JsonResponse
     {
-        return $this->service->info($uuid);
+        $collection = $this->service->info($uuid);
+        return response()->json(
+            ['files' => $collection->get('files')],
+            $collection->get('status')
+        );
     }
 
     /**
      * @param string $path
-     * @return JsonResponse|BinaryFileResponse
+     * @return \Illuminate\Support\Collection|JsonResponse
      */
     public function download(string $path)
     {
-        return $this->service->download($path);
+        $collection = $this->service->download($path);
+        if ($collection->get('status') == 404) {
+            return response()->json(
+                ['error' => $collection->get('error')],
+                $collection->get('status')
+            );
+        }
+        return $collection;
     }
 }
