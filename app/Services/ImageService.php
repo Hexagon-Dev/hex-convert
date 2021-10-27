@@ -90,7 +90,7 @@ class ImageService implements ImageServiceInterface
      * @param string $path
      * @return JsonResponse|BinaryFileResponse
      */
-    public function download(string $path)
+    public function download(string $path): JsonResponse
     {
         if (!File::exists(public_path($path))) {
             return response()->json(
